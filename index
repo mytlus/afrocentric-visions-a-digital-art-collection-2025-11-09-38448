@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Afrocentric Visions Gallery: Browse our curated collection of authentic Afrocentric digital art celebrating cultural heritage and contemporary creativity.">
+    <meta name="keywords" content="Afrocentric art gallery, digital art collection, cultural artwork, African art, diaspora art">
+    <meta name="author" content="Afrocentric Visions">
+    <meta property="og:title" content="Afrocentric Visions Gallery">
+    <meta property="og:description" content="Explore our curated gallery of authentic Afrocentric digital art.">
+    <meta property="og:type" content="website">
+    <title>Gallery - Afrocentric Visions: A Digital Art Collection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 50%, #6bcf7f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-glow:hover::before {
+            left: 100%;
+        }
+        
+        .gallery-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.75rem;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .gallery-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.5) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
+        }
+        
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+        
+        .filter-btn {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 50%, #6bcf7f 100%);
+            border-color: transparent;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .modal-content {
+            max-width: 90%;
+            max-height: 90vh;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .modal-image {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 0.75rem;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            transform: scale(1.2);
+        }
+        
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        
+        .modal-nav:hover {
+            transform: translateY(-50%) scale(1.2);
+        }
+        
+        .modal-prev {
+            left: -60px;
+        }
+        
+        .modal-next {
+            right: -60px;
+        }
+        
+        .modal-info {
+            color: white;
+            margin-top: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white overflow-x-hidden">
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 bg-gray-900 bg-opacity-95 backdrop-blur-md border-b border-gray-800">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-palette text-white"></i>
+                </div>
+                <span class="text-xl font-bold text-white">Afrocentric Visions</span>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="index.html#features" class="text-gray-300 hover:text-white transition-colors duration-300 font-medium">Features</a>
+                <a href="index.html#benefits" class="text-gray-300 hover:text-white transition-colors duration-300 font-medium">Benefits</a>
+                <a href="index.html#testimonials" class="text-gray-300 hover:text-white transition-colors duration-300 font-medium">Testimonials</a>
+                <a href="index.html#faq" class="text-gray-300 hover:text-white transition-colors duration-300 font-medium">FAQ</a>
+                <a href="index.html#about" class="text-gray-300 hover:text-white transition-colors duration-300 font-medium">About</a>
+                <a href="gallery.html" class="text-gray-300 hover:text-white transition-colors duration-300 font-medium">Explore Gallery</a>
+            </div>
+
+            <!-- CTA Button Desktop -->
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="https://www.example.com" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-pink-600 text-white rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 btn-glow">
+                    Explore Gallery
+                </a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden mobile-menu-button p-2 rounded-lg hover:bg-gray-800 transition-colors duration-300" aria-label="Toggle menu">
+                <i class="fas fa-bars text-white text-xl"></i>
+            </button>
+
+            <!-- Mobile Menu -->
+            <div class="mobile-menu hidden absolute top-full left-0 right-0 bg-gray-800 border-b border-gray-700 md:hidden">
+                <div class="px-4 py-4 space-y-4">
+                    <a href="index.html#features" class="block text-gray-300 hover:text-white transition-colors duration-300 font-medium py-2">Features</a>
+                    <a href="index.html#benefits" class="block text-gray-300 hover:text-white transition-colors duration-300 font-medium py-2">Benefits</a>
+                    <a href="index.html#testimonials" class="block text-gray-300 hover:text-white transition-colors duration-300 font-medium py-2">Testimonials</a>
+                    <a href="index.html#faq" class="block text-gray-300 hover:text-white transition-colors duration-300 font-medium py-2">FAQ</a>
+                    <a href="index.html#about" class="block text-gray-300 hover:text-white transition-colors duration-300 font-medium py-2">About</a>
+                    <a href="gallery.html" class="block text-gray-300 hover:text-white transition-colors duration-300 font-medium py-2">Explore Gallery</a>
+                    <a href="https://www.example.com" class="block w-full px-8 py-3 bg-gradient-to-r from-orange-500 to-pink-600 text-white rounded-full font-semibold text-center hover:shadow-lg hover:scale-105 transition-all duration-300 mt-4">
+                        Explore Gallery
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Gallery Hero Section -->
+    <section class="relative py-20 bg-gray-800 bg-opacity-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-tight">
+                Explore Our <span class="gradient-text">Afrocentric Art Collection</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed font-light">
+                Discover a carefully curated selection of authentic Afrocentric artwork celebrating cultural heritage, contemporary creativity, and diverse artistic expressions from around the world.
+            </p>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="py-12 bg-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap gap-3 justify-center items-center">
+                <button class="filter-btn active px-6 py-2 bg-gray-800 text-white rounded-full font-medium hover:bg-gray-700 transition-all duration-300" data-filter="all">
+                    All Artworks
+                </button>
+                <button class="filter-btn px-6 py-2 bg-gray-800 text-white rounded-full font-medium hover:bg-gray-700 transition-all duration-300" data-filter="abstract">
+                    Abstract
+                </button>
+                <button class="filter-btn px-6 py-2 bg-gray-800 text-white rounded-full font-medium hover:bg-gray-700 transition-all duration-300" data-filter="portrait">
+                    Portraits
+                </button>
+                <button class="filter-btn px-6 py-2 bg-gray-800 text-white rounded-full font-medium hover:bg-gray-700 transition-all duration-300" data-filter="cultural">
+                    Cultural
+                </button>
+                <button class="filter-btn px-6 py-2 bg-gray-800 text-white rounded-full font-medium hover:bg-gray-700 transition-all duration-300" data-filter="contemporary">
+                    Contemporary
+                </button>
+                <button class="filter-btn px-6 py-2 bg-gray-800 text-white rounded-full font-medium hover:bg-gray-700 transition-all duration-300" data-filter="digital">
+                    Digital
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Grid -->
+    <section class="py-24 bg-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="gallery-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Gallery Item 1 -->
+                <div class="gallery-item group" data-category="abstract" data-index="0">
+                    <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500&h=500&fit=crop" alt="Abstract Afrocentric Art 1">
+                    <div class="gallery-overlay">
+                        <h3 class="text-xl font-bold text-white mb-2">Vibrant Heritage</h3>
+                        <p class="text-gray-200 text-sm">Abstract exploration of cultural identity</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 2 -->
+                <div class="gallery-item group" data-category="portrait" data-index="1">
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=500&fit=crop" alt="Portrait Afrocentric Art 1">
+                    <div class="gallery-overlay">
+                        <h3 class="text-xl font-bold text-white mb-2">Regal Presence</h3>
+                        <p class="text-gray-200 text-sm">Contemporary portrait celebrating dignity</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 3 -->
+                <div class="gallery-item group" data-category="cultural" data-index="2">
+                    <img src="https://images.unsplash.com/photo-1549887534-f81d9c1b36c9?w=500&h=500&fit=crop" alt="Cultural Afrocentric Art 1">
+                    <div class="gallery-overlay">
+                        <h3 class="text-xl font-bold text-white mb-2">Cultural Roots</h3>
+                        <p class="text-gray-200 text-sm">Traditional patterns and modern fusion</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 4 -->
+                <div class="gallery-item group" data-category="contemporary" data-index="3">
+                    <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500&h=500&fit=crop" alt="Contemporary Afrocentric Art 1">
+                    <div class="gallery-overlay">
+                        <h3 class="text-xl font-bold text-white mb-2">Modern Expression</h3>
+                        <p class="text-gray-200 text-sm">Contemporary artistic vision</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 5 -->
+                <div class="gallery-item group" data-category="digital" data-index="4">
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=500&fit=crop" alt="Digital Afrocentric Art 1">
+                    <div class="gallery-overlay">
+                        <h3 class="text-xl font-bold text-white mb-2">Digital Dreams</h3>
+                        <p class="text-gray-200 text-sm">Digital creation and innovation</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 6 -->
+                <div class="gallery-item group" data-category="abstract" data-index="5">
+                    <img src="https://images.unsplash.com/photo-1549887534-f81d9c1b36c9?w=500&h=500&fit=crop" alt="Abstract Afrocentric Art 2">
+                    <div class="gallery-overlay">
+                        <h3 class="text-xl font-bold text-white mb-2">Color & Form</h3>
+                        <p class="text-gray-200 text-sm">Abstract interpretation of cultural themes</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 7 -->
+                <div class="gallery-item group" data-category="portrait" data-index="6">
+                    <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500&h=500&fit=crop" alt="Portrait Afrocentric Art 2">
+                    <div class="gallery-overlay">
+                        <h3 class="text-xl font-bold text-white mb-2">Strength & Grace</h3>
+                        <p class="text-gray-200 text-sm">Powerful portraiture celebrating identity</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 8 -->
+                <div class="gallery-item group" data-category="cultural" data-index="7">
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=500&fit=crop" alt="Cultural Afrocentric Art 2">
+                    <div class="gallery-overlay">
+                        <h3 class="text-xl font-bold text-white mb-2">Heritage Stories</h3>
+                        <p class="text-gray-200 text-sm">Narrative art preserving traditions</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 9 -->
+                <div class="gallery-item group" data-category="contemporary" data-index="8">
+                    <img src="https://images.unsplash.com/photo-1549887534-f81d9c1b36c9?w=500&h=500&fit=crop" alt="Contemporary Afrocentric Art 2">
+                    <div class="gallery-overlay">
+                        <h3 class="text-xl font-bold text-white mb-2">New Perspectives</h3>
+                        <p class="text-gray-200 text-sm">Contemporary voices and visions</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 10 -->
+                <div class="gallery-item group" data-category="digital" data-index="9">
+                    <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500&h=500&fit=crop" alt="Digital Afrocentric Art 2">
+                    <div class="gallery-overlay">
+                        <h3 class="text-xl font-bold text-white mb-2">Tech & Culture</h3>
+                        <p class="text-gray-200 text-sm">Blending technology with tradition</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 11 -->
+                <div class="gallery-item group" data-category="abstract" data-index="10">
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=500&fit=crop" alt="Abstract Afrocentric Art 3">
+                    <div class="gallery-overlay">
+                        <h3 class="text-xl font-bold text-white mb-2">Rhythmic Patterns</h3>
+                        <p class="text-gray-200 text-sm">Abstract rhythms of African heritage</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 12 -->
+                <div class="gallery-item group" data-category="portrait" data-index="11">
+                    <img src="https://images.unsplash.com/photo-1549887534-f81d9c1b36c9?w=500&h=500&fit=crop" alt="Portrait Afrocentric Art 3">
+                    <div class="gallery-overlay">
+                        <h3 class="text-xl font-bold text-white mb-2">Faces of Pride</h3>
+                        <p class="text-gray-200 text-sm">Celebrating individual and collective identity</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for Full Image View -->
+    <div id="imageModal" class="modal">
+        <span class="modal-close" id="modalClose">&times;</span>
+        <div class="modal-content">
+            <span class="modal-nav modal-prev" id="modalPrev">&#10094;</span>
+            <img id="modalImage" class="modal-image" src="" alt="Gallery image">
+            <span class="modal-nav modal-next" id="modalNext">&#10095;</span>
+            <div class="modal-info">
+                <p id="modalTitle" class="text-lg font-semibold mb-1"></p>
+                <p id="modalDescription" class="text-gray-400"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <section class="relative py-24 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=1920&h=600&fit=crop" alt="Join our community" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900 to-gray-900 opacity-80"></div>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Ready to Use These Artworks?</h2>
+            <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Download high-resolution versions with flexible licensing options perfect for your creative projects.</p>
+            <a href="https://www.example.com" class="inline-flex items-center space-x-2 px-10 py-4 bg-gradient-to-r from-orange-500 to-pink-600 text-white rounded-full font-bold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 btn-glow">
+                <span>Download Now</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                <!-- Brand Column -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-palette text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">Afrocentric Visions</span>
+                    </div>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-4">Celebrating the richness and diversity of Afrocentric culture through premium digital art and authentic visual storytelling.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-600 transition-all duration-300">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-600 transition-all duration-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-600 transition-all duration-300">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-600 transition-all duration-300">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-bold text-white mb-6">Quick Links</h4>
+                    <ul class="space-y-3">
+                        <li><a href="index.html#features" class="text-gray-400 hover:text-white transition-colors duration-300">Features</a></li>
+                        <li><a href="index.html#benefits" class="text-gray-400 hover:text-white transition-colors duration-300">Benefits</a></li>
+                        <li><a href="index.html#testimonials" class="text-gray-400 hover:text-white transition-colors duration-300">Testimonials</a></li>
+                        <li><a href="index.html#faq" class="text-gray-400 hover:text-white transition-colors duration-300">FAQ</a></li>
+                        <li><a href="index.html#about" class="text-gray-400 hover:text-white transition-colors duration-300">About Us</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h4 class="text-lg font-bold text-white mb-6">Resources</h4>
+                    <ul class="space-y-3">
+                        <li><a href="blog.html" class="text-gray-400 hover:text-white transition-colors duration-300">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">Artist Guidelines</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">Creator Community</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">Support Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legal -->
+                <div>
+                    <h4 class="text-lg font-bold text-white mb-6">Legal</h4>
+                    <ul class="space-y-3">
+                        <li><a href="privacy.html" class="text-gray-400 hover:text-white transition-colors duration-300">Privacy Policy</a></li>
+                        <li><a href="terms.html" class="text-gray-400 hover:text-white transition-colors duration-300">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">Cookie Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">Licensing Agreement</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">Accessibility</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="border-t border-gray-800 pt-8">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <p class="text-gray-400 text-sm mb-4 md:mb-0">
+                        &copy; 2025 Afrocentric Visions. All rights reserved. | Celebrating African and diaspora cultures through authentic digital art.
+                    </p>
+                    <div class="flex space-x-6 text-sm">
+                        <a href="privacy.html" class="text-gray-400 hover:text-white transition-colors duration-300">Privacy</a>
+                        <a href="terms.html" class="text-gray-400 hover:text-white transition-colors duration-300">Terms</a>
+                        <a href="blog.html" class="text-gray-400 hover:text-white transition-colors duration-300">Blog</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile Menu Toggle
+            const mobileMenuButton = document.querySelector('header nav .mobile-menu-button');
+            const mobileMenu = document.querySelector('header nav .mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                    const icon = mobileMenuButton.querySelector('i');
+                    if (icon) {
+                        icon.classList.toggle('fa-bars');
+                        icon.classList.toggle('fa-times');
+                    }
+                });
+
+                const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+                mobileMenuLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuButton.querySelector('i');
+                        if (icon) {
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                        }
+                    });
+                });
+            }
+
+            // Gallery Filter
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const galleryItems = document.querySelectorAll('.gallery-item');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const filter = button.getAttribute('data-filter');
+
+                    // Update active button
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    // Filter gallery items
+                    galleryItems.forEach(item => {
+                        const category = item.getAttribute('data-category');
+                        if (filter === 'all' || category === filter) {
+                            item.style.display = 'block';
+                            setTimeout(() => {
+                                item.style.opacity = '1';
+                            }, 10);
+                        } else {
+                            item.style.opacity = '0';
+                            setTimeout(() => {
+                                item.style.display = 'none';
+                            }, 300);
+                        }
+                    });
+                });
+            });
+
+            // Gallery Modal
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+            const modalClose = document.getElementById('modalClose');
+            const modalPrev = document.getElementById('modalPrev');
+            const modalNext = document.getElementById('modalNext');
+            let currentImageIndex = 0;
+            let visibleItems = [];
+
+            function updateVisibleItems() {
+                visibleItems = Array.from(galleryItems).filter(item => item.style.display !== 'none');
+            }
+
+            galleryItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    updateVisibleItems();
+                    currentImageIndex = visibleItems.indexOf(item);
+                    openModal(item);
+                });
+            });
+
+            function openModal(item) {
+                const img = item.querySelector('img');
+                const overlay = item.querySelector('.gallery-overlay');
+                const title = overlay.querySelector('h3').textContent;
+                const description = overlay.querySelector('p').textContent;
+
+                modalImage.src = img.src;
+                modalTitle.textContent = title;
+                modalDescription.textContent = description;
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+
+            modalClose.addEventListener('click', closeModal);
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            modalPrev.addEventListener('click', () => {
+                currentImageIndex = (currentImageIndex - 1 + visibleItems.length) % visibleItems.length;
+                openModal(visibleItems[currentImageIndex]);
+            });
+
+            modalNext.addEventListener('click', () => {
+                currentImageIndex = (currentImageIndex + 1) % visibleItems.length;
+                openModal(visibleItems[currentImageIndex]);
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (modal.classList.contains('active')) {
+                    if (e.key === 'ArrowLeft') modalPrev.click();
+                    if (e.key === 'ArrowRight') modalNext.click();
+                    if (e.key === 'Escape') closeModal();
+                }
+            });
+
+            // Smooth Scroll for Anchor Links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href !== '#' && href.length > 1) {
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                });
+            });
+
+            // Initialize visible items
+            updateVisibleItems();
+        });
+    </script>
+</body>
+</html>
